@@ -1,5 +1,12 @@
 go.property("dir", vmath.vector3())
 
+local function explode(self)
+  self.life = 1000
+  go.set_rotation(vmath.quat())
+  self.speed = 0
+  msg.post("#sprite", "play_animation", { id = hash("explosion") })       
+end
+
 function init(self)
   self.speed = 200
   self.life = 1
@@ -13,15 +20,16 @@ function update(self, dt)
   self.life = self.life - dt
 
   if self.life < 0 then
-    self.life = 1000
-    go.set_rotation(vmath.quat())
-    self.speed = 0
-    msg.post("#sprite", "play_animation", { id = hash("explosion") })
+    explode(self)
   end
 end
 
 function on_message(self, message_id, message, sender)
   if message_id == hash("animation_done") then
     go.delete()
-  end 
+  elseif message_id == hash("collision_response") then
+    explode(self)
+    go.delete(message.other_id)
+    msg.post("/gui#ui", "increment_score", {amount = 100})
+  end
 end

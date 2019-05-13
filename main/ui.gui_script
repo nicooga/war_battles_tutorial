@@ -1,0 +1,16 @@
+function init(self)
+  self.score = 0
+end
+
+local function increment_score(self, amount)
+  self.score = self.score + amount
+  local scorenode = gui.get_node("score")
+  gui.set_text(scorenode, "SCORE: " .. self.score)
+end
+
+function on_message(self, message_id, message, sender)
+  pprint(message_id, message)
+  if message_id == hash("increment_score") then
+    increment_score(self, message.amount)
+  end 
+end
